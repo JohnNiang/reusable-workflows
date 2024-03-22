@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  workflow_call:
+
+jobs:
+  ci:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Environment
+        uses: ./.github/actions/setup-env
+      - name: Check
+        run: ./gradlew check
+      - name: Populate Version
+        if: github.event_name == 'release'
+        shell: bash
+        run: |
+          # Set the version with tag name when releasing
+          version=${{ github.event.release.tag_name }}
+          version=${version#v}
+          sed -i "s/version=.*-SNAPSHOT$/version=$version/1" gradle.properties
+      - name: Build for releasing
+        if: github.event_name == 'release'
+        run: ./gradlew -Pversion=${{ github.event.release.tag_name }} build -x check
+      - name: Build
+        if: github.event_name != 'release'
+        run: ./gradlew build -x check
+

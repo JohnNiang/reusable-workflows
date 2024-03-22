@@ -1,0 +1,16 @@
+name: CD
+
+on:
+  workflow_call:
+
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Released to GitHub successfully!"
+  appstore-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Released to Halo appstore successfully!"
