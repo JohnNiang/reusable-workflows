@@ -16,6 +16,11 @@ inputs:
     description: Java version.
     required: false
     default: "17"
+  cache-dept-path:
+    description: Pnpm cache dependency path.
+    required: false
+    defualt: ""
+
 
 runs:
   using: "composite"
@@ -30,7 +35,7 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
-        cache-dependency-path: 'ui/pnpm-lock.yaml'
+        cache-dependency-path: ${{ inputs.cache-dept-path }}
 
     - name: Setup JDK
       uses: actions/setup-java@v4
