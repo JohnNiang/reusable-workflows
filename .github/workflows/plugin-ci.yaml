@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Environment
-        uses: ./.github/actions/setup-env
+        uses: JohnNiang/reusable-workflows/.github/actions/setup-env@main
       - name: Check
         run: ./gradlew check
       - name: Populate Version
