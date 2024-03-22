@@ -2,6 +2,12 @@ name: CI
 
 on:
   workflow_call:
+    inputs:
+      artifacts-path:
+        type: string
+        required: true
+        default: build/libs
+        description: Artifacts path, default is build/libs
 
 jobs:
   ci:
@@ -27,4 +33,9 @@ jobs:
       - name: Build
         if: github.event_name != 'release'
         run: ./gradlew build -x check
-
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: halo-artifacts
+          path: ${{ inputs.artifacts-path }}
+          retention-days: 1
