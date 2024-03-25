@@ -15,6 +15,7 @@ on:
         default: "console"
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,11 +33,11 @@ jobs:
           retention-days: 1
 
   github-release:
+    name: GitHub Release
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'release'
     steps:
-      - uses: actions/checkout@v4
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -47,9 +48,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ${{ inputs.artifacts-path }}/*
   appstore-release:
+    name: Appstore Release
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'release'
     steps:
-      - uses: actions/checkout@v4
-      - run: echo "Released to Halo appstore successfully!"
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ inputs.artifacts-path }}
+      - name: Release to Appstore
+        uses: halo-sigs/app-store-release-action@v2
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          app-id: app-Qxhpp
+          # TODO Remove the baseurl before releasing
+          halo-backend-baseurl: https://halo-dev.ryanc.cc
+          release-id: ${{ github.event.release.id }}
+          assets-dir: ${{ inputs.artifacts-path }}
+          halo-username: ${{ secrets.HALO_USERNAME }}
+          halo-password: ${{ secrets.HALO_PASSWORD }}
