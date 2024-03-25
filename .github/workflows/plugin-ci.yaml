@@ -3,11 +3,6 @@ name: CI
 on:
   workflow_call:
     inputs:
-      artifacts-path:
-        type: string
-        required: false
-        default: build/libs
-        description: Artifacts path, default is build/libs
       ui-path:
         description: Path of UI project.
         type: string
@@ -16,7 +11,6 @@ on:
 
 jobs:
   ci:
-    if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,24 +19,4 @@ jobs:
         with:
           cache-dept-path: ${{ inputs.ui-path }}/pnpm-lock.yaml
       - name: Check
-        run: ./gradlew check
-      - name: Populate Version
-        if: github.event_name == 'release'
-        shell: bash
-        run: |
-          # Set the version with tag name when releasing
-          version=${{ github.event.release.tag_name }}
-          version=${version#v}
-          sed -i "s/version=.*-SNAPSHOT$/version=$version/1" gradle.properties
-      - name: Build for releasing
-        if: github.event_name == 'release'
-        run: ./gradlew -Pversion=${{ github.event.release.tag_name }} build -x check
-      - name: Build
-        if: github.event_name != 'release'
-        run: ./gradlew build -x check
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: halo-artifacts
-          path: ${{ inputs.artifacts-path }}
-          retention-days: 1
+        run: ./gradlew clean build

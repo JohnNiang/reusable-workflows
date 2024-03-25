@@ -2,15 +2,46 @@ name: CD
 
 on:
   workflow_call:
+    inputs:
+      artifacts-path:
+        type: string
+        required: false
+        default: build/libs
+        description: Artifacts path, default is build/libs
 
 jobs:
-  github-release:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Released to GitHub successfully!"
+      - name: Setup Environment
+        uses: JohnNiang/reusable-workflows/.github/actions/setup-env@main
+      - name: Build
+        run: ./gradlew build -x check
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ inputs.artifacts-path }}
+          retention-days: 1
+
+  github-release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ inputs.artifacts-path }}
+      - name: Upload Release Assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} ${{ inputs.artifacts-path }}
   appstore-release:
     runs-on: ubuntu-latest
+    if: github.event_name == 'release'
     steps:
       - uses: actions/checkout@v4
       - run: echo "Released to Halo appstore successfully!"
