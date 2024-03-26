@@ -13,6 +13,10 @@ on:
         type: string
         required: false
         default: "console"
+      app-id:
+        description: Application ID from Halo Appstore.
+        required: true
+        type: string
 jobs:
   build:
     name: Build
@@ -20,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Environment
-        uses: JohnNiang/reusable-workflows/.github/actions/setup-env@main
+        uses: halo-sigs/actions/plugin-setup-env@v1.0
         with:
           cache-dept-path: ${{ inputs.ui-path }}/pnpm-lock.yaml
       - name: Build
@@ -64,7 +68,7 @@ jobs:
         uses: halo-sigs/app-store-release-action@v2
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          app-id: app-Qxhpp
+          app-id: ${{ inputs.app-id }}
           # TODO Remove the baseurl before releasing
           halo-backend-baseurl: https://halo-dev.ryanc.cc
           release-id: ${{ github.event.release.id }}

@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Environment
-        uses: JohnNiang/reusable-workflows/.github/actions/setup-env@main
+        uses: halo-sigs/actions/plugin-setup-env@v1.0
         with:
           cache-dept-path: ${{ inputs.ui-path }}/pnpm-lock.yaml
       - name: Check
